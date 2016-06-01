@@ -1,3 +1,6 @@
+#ifndef ODOMETRY_GAURD
+#define ODOMETRY_GAURD
+
 #include <webots/differential_wheels.h>
 #include <iostream>
 #include <math.h>
@@ -18,12 +21,17 @@ class Odometry{
 		double x;
 		double y;
 		double teta;
+		double delta_x;
+		double delta_y;
+		double delta_teta; 
 	 
 		Odometry::Odometry(){
 		dl=0;dr=0;da=0;
-		x=0;y=0;teta=0;
+		x=0;y=1.2;teta=0;
 		}
 		void compute_odometry();
 		void compute_location();
 		void print_location();
 };
+
+#endif

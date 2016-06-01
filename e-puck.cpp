@@ -10,34 +10,26 @@
 #include <vector>
 #include "Particle.h"
 #include "Odometry.h"
+#include "AllParticles.h"
 
 
 
 #define TIME_STEP 64
-#define WALL 1
+#define PARTICLE_SCALE 5
 
 using namespace std;
 
 int height;
 int width;
 int scale;
-int particle_number=1000;
-int particle_scale =5;
 bool** map;
 Odometry epuck_odometry;
+AllParticles allParticles;
+
 int counter = 100;
 
 
-static void odo(){
-		double l = wb_differential_wheels_get_left_encoder();
-	double r = wb_differential_wheels_get_right_encoder();
-	double dl = l / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by left wheel in meter
-	double dr = r / ENCODER_RESOLUTION * WHEEL_RADIUS; // distance covered by right wheel in meter
-	double  da = (dr - dl) / AXLE_LENGTH; // delta orientation
-	printf("estimated distance covered by left wheel: %g m.\n",dl);
-	printf("estimated distance covered by right yasaman: %g m.\n",dr);
-	printf("estimated change of orientation: %g rad.\n",da);
-}
+
 
 /****read environment size****/
 void read_env_size(){
@@ -85,68 +77,17 @@ void read_map(){
 
 }
 
-vector<Particle> generate_uniform_samples(){
-
-	//particle_number how much?
-	vector<Particle> v;
-
-	int i,j,x,y;
-
-	for (i=0;i<height;i=i+particle_scale){
-
-		for(j=0;j<width;j=j+particle_scale){
-
-            x = j;
-		    y = i;
-	        while(map[y][x]==WALL){
-				y=y+1;
-				if(y>=height){
-					y=0;
-					x=x+1;
-				}
-				if(x>=width){
-					x=0;
-				}
-
-			}
-			
-			Particle* p = new Particle(x,y,1/particle_number,0);
-			
-
-			
-			v.push_back(*p); 
-
-		}
-	}
-
-	particle_number = v.size();
-	return v;
-
-}
-
-void print_particles(vector<Particle> particles){
-	try{
-	int i;
-	for(i=0;i<particles.size();i++){
-
-		printf( "particle %d: [%d,%d] w=%f\n",i, particles[i].x,
-			particles[i].y,particles[i].weight);
-
-	}
-	}catch(...){}
-
-}
 
 /*******particle filter*******/
 void particle_filter(){
 
-	 vector<Particle> particles = generate_uniform_samples();
-     //print_particles(particles);
+	allParticles = *(new AllParticles());
+	vector<Particle> particles = allParticles.generate_uniform_samples(map,height,width,PARTICLE_SCALE);
+    //allParticles.print_particles();
 
 
 
 }
-
 
 int main(int argc, char *argv[]) {
 
@@ -181,9 +122,9 @@ int main(int argc, char *argv[]) {
 	read_env_size();
 	read_map();
 	particle_filter();
-	epuck_odometry = *(new Odometry());
+	//epuck_odometry = *(new Odometry());
 	/* main loop */
-	for(;counter>0; counter--) {
+	while (wb_robot_step(TIME_STEP) != -1){
 		/* get sensors values */
 		for (i = 0; i < 8; i++) {
 			sensors_value[i] = wb_distance_sensor_get_value(distance_sensor[i]);
@@ -192,8 +133,7 @@ int main(int argc, char *argv[]) {
 		
 
 		/* compute odometry and speed values*/
-		//epuck_odometry.compute_odometry();
-		odo();
+		epuck_odometry.compute_odometry();
 		for (i = 0; i < 2; i++) {
 			speed[i] = 0.0;
 			for (j = 0; j < 8; j++) {
@@ -202,11 +142,17 @@ int main(int argc, char *argv[]) {
 		}
 
 		/* set speed values */
-		//epuck_odometry.print_location();
+		epuck_odometry.compute_location();	
+		epuck_odometry.print_location();
 		wb_differential_wheels_set_speed(speed[0], speed[1]);
+		allParticles.move_particles(epuck_odometry.delta_x,epuck_odometry.delta_y,epuck_odometry.delta_teta);
+		counter--;
+		if(counter==0)
+			break;
 		
 	}
-
+	allParticles.write_to_file();
+	wb_differential_wheels_set_speed(0, 0);
 	wb_robot_cleanup();
 
 	return 0;

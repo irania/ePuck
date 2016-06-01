@@ -18,16 +18,17 @@ void Odometry::compute_odometry() {
 void Odometry::compute_location(){
 	double delta_l = dl - pdl;
 	double delta_r = dr - pdr;
-	double delta_teta = (delta_r - delta_l)/AXLE_LENGTH;
+	printf("diff: [%f , %f , %f]\n",x,y,teta);
+	delta_teta = (delta_r - delta_l)/AXLE_LENGTH;
 	double delta_d = (delta_l+delta_r)/2;
-	double delta_x = delta_d*cos(da+(delta_teta)/2);
-	double delta_y = delta_d*sin(da+(delta_teta)/2);
+	delta_y = delta_d*cos(da+(delta_teta)/2);
+	delta_x = delta_d*sin(da+(delta_teta)/2);
 
-	x = x+delta_x;
-	y= y+delta_y;
+	x = x-delta_x;
+	y= y-delta_y;
 	teta = teta+delta_teta;
 }
 
 void Odometry::print_location(){
-	printf("i am in: [%f02 , %f02 , %f02]\n",x,y,teta);
+	printf("i am in: [%f , %f , %f]\n",x,y,teta);
 }
