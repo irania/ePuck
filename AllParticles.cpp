@@ -3,11 +3,10 @@
 
 AllParticles::AllParticles(void){
 	scale=2;
+	
 }
 
 
-AllParticles::~AllParticles(void){
-}
 
 //***********************move particles***********************
 void AllParticles::move_particles(double delta_x,double delta_y,double delta_teta){
@@ -109,5 +108,14 @@ void AllParticles::write_to_file(){
 	  myfile.close();
   }
   else cout << "Unable to open file";
+
+}
+
+
+void AllParticles::sensors_distance(){
+
+	for(int i=0;i<particles_number;i++){
+		particles[i].sensors_distance(map);
+	}
 
 }

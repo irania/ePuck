@@ -25,7 +25,7 @@ class Odometry{
 		double delta_y;
 		double delta_teta; 
 	 
-		Odometry::Odometry(){
+		Odometry(){
 		dl=0;dr=0;da=0;
 		x=0;y=1.2;teta=0;
 		}

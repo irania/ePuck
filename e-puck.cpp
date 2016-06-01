@@ -8,9 +8,11 @@
 #include <exception>
 #include <Windows.h>
 #include <vector>
+#include "AllParticles.h"
+#include "Sensors.h"
 #include "Particle.h"
 #include "Odometry.h"
-#include "AllParticles.h"
+
 
 
 
@@ -25,8 +27,10 @@ int scale;
 bool** map;
 Odometry epuck_odometry;
 AllParticles allParticles;
+Sensors sens;
 
-int counter = 100;
+
+int counter = 50;
 
 
 
@@ -141,9 +145,21 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		/* set speed values */
+		/* ADOLPH TEAM CODES*/
 		epuck_odometry.compute_location();	
 		epuck_odometry.print_location();
+		sens.print_distance_sensors(sensors_value);
+
+
+		printf("sensors value:  ");
+		for(int i=0;i<8;i++){
+			printf(" %f ",sensors_value[i]);
+
+		}
+		printf("\n");
+
+
+		/* set speed values */
 		wb_differential_wheels_set_speed(speed[0], speed[1]);
 		allParticles.move_particles(epuck_odometry.delta_x,epuck_odometry.delta_y,epuck_odometry.delta_teta);
 		counter--;
