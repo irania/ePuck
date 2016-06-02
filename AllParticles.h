@@ -11,6 +11,7 @@
 
 #define WALL 1
 #define FREE 0
+#define DISTANCES_NUMBER
 
 using namespace std;
 

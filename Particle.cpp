@@ -1,5 +1,6 @@
 
 #include "Particle.h"
+#include "Global.h"
 
 const double Particle::SENSORS_ORIENTATION []= {-0.3,-0.8,-1.57,-2.64,2.64,1.57,0.8,0.3};
 
@@ -16,7 +17,7 @@ int* Particle::sensors_distance(bool** map){
 
 	for(int i=0;i<SENSORS_NUMBER;i++){
 
-		result[i] =-1; // first -1
+		result[i] =INFINIT_DISTANCE; // first -1
 		for(int j=0;j<DISTANCES;j++){
 			
 			double teta = orientation+SENSORS_ORIENTATION[i];
@@ -31,4 +32,33 @@ int* Particle::sensors_distance(bool** map){
 		}
 	}
 	return result;
+}
+
+
+void Particle::update_weight(int** robot_sensor,bool** map){
+
+
+	int* sens_distance = sensors_distance(map);
+	double d = get_manhatan_distance(sens_distance,robot_sensor);
+	
+	if(weight>0)
+	{
+		weight = exp(-pow(d,2)/(2*pow(SIGMA_W,2)));
+	}
+
+
+}
+
+double Particle::get_manhatan_distance(int* sens_distance,int** robot_sensor){
+	
+	const int DISTANCE = 0;
+	const int PROBABILITY = 1;
+	
+	double sum=0;
+	for(int i=0;i<sizeof(sens_distance);i++){
+		int dif = (robot_sensor[DISTANCE][i]-sens_distance[i]);
+		sum +=  (double)(robot_sensor[PROBABILITY][i]*pow(dif,2)*0.01);
+	}
+
+	return sqrt(sum);
 }

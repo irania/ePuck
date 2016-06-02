@@ -115,7 +115,7 @@ void AllParticles::write_to_file(){
 void AllParticles::sensors_distance(){
 
 	for(int i=0;i<particles_number;i++){
-		particles[i].sensors_distance(map);
+		//int sens_dist[][DISTANCES_NUMBER] = particles[i].sensors_distance(map);
 	}
 
 }
