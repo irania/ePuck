@@ -32,6 +32,10 @@ public:
 	void print_particles();
 	void write_to_file();
 	void sensors_distance();
+	void resample();
+	double random(double fmin, double fmax);
+	void updat_all_weights();
+	void updat_all_weights(int **sensors_distance);
 };
 
 #endif

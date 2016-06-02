@@ -1,0 +1,2 @@
+#define INFINIT_DISTANCE 10
+#define SENSORS_NUMBER 8

@@ -161,7 +161,12 @@ int main(int argc, char *argv[]) {
 
 		/* set speed values */
 		wb_differential_wheels_set_speed(speed[0], speed[1]);
+		
+		/* ADOLPH TEAM CODES*/
 		allParticles.move_particles(epuck_odometry.delta_x,epuck_odometry.delta_y,epuck_odometry.delta_teta);
+		int** sensors_distance = sens.distance_all_sensors(sensors_value);
+		allParticles.updat_all_weights(sensors_distance);
+		allParticles.resample();
 		counter--;
 		if(counter==0)
 			break;

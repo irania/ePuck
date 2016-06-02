@@ -19,13 +19,13 @@ void AllParticles::move_particles(double delta_x,double delta_y,double delta_tet
 		particles[i].orientation += delta_teta;
 
 		if(particles[i].x>=width || particles[i].x<0 ){
-			particles[i].weight = - DBL_MAX;
+			particles[i].weight = 0;
 		}else
 			if(particles[i].y>=height || particles[i].y<0 ){
-				particles[i].weight = - DBL_MAX;
+				particles[i].weight = 0;
 			}else
 				if(map[particles[i].y][particles[i].x]==1)
-					particles[i].weight = - DBL_MAX;
+					particles[i].weight = 0;
 
 
 	}
@@ -112,6 +112,7 @@ void AllParticles::write_to_file(){
 }
 
 
+//***********************sensors distance***********************
 void AllParticles::sensors_distance(){
 
 	for(int i=0;i<particles_number;i++){
@@ -119,3 +120,49 @@ void AllParticles::sensors_distance(){
 	}
 
 }
+
+
+//***********************resample *****************************
+void AllParticles::resample(){
+	
+	double sum=0;
+	for(int i=0;i<particles_number;i++){
+		sum += particles[i].weight;
+	}
+
+	for(int i=0;i<particles_number;i++){
+		double r = random(0,sum);
+		double s=0;
+		int j;
+		
+		for(j=0;j<particles_number;j++){
+			s = s+ particles[j].weight;
+			if(r<s){
+				break;
+			}
+		}
+
+		particles[i].x = particles[j].x;
+		particles[i].y = particles[j].y;
+		particles[i].weight = particles[j].weight;
+		particles[i].orientation = particles[j].orientation;
+
+	}
+}
+
+
+double AllParticles::random(double fmin, double fmax){
+
+	double f = (double)rand() / RAND_MAX;
+    return fmin + f * (fmax - fmin);
+
+}
+
+
+void AllParticles::updat_all_weights(int **sensors_distance){
+
+	for(int i=0;i<particles_number;i++){
+		particles[i].update_weight(sensors_distance,map);
+	}
+}
+
